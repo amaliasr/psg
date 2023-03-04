@@ -644,6 +644,7 @@ $rowBarang = mysqli_fetch_array(mysqli_query($conn, $sqlBarang));
             var data = {
                 id: id,
             }
+            // test
             $.ajax({
                 url: 'hapusOpname.php',
                 type: 'POST',
