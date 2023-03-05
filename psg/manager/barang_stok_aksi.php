@@ -1,40 +1,39 @@
-<?php 
-  session_start();
-  if($_SESSION['user']==""){
-		header("location:../index.php?pesan=belum_login");
-	}
-  
-  include '../dbconnect.php';
-  $nama=$_POST['nama'];
-  $jenis=$_POST['jenis'];
-  $stock=$_POST['stock'];
-  $harga=$_POST['harga'];
-  $pic=$_SESSION['user'];
-
-  $checkname =mysqli_num_rows(mysqli_query($conn,"SELECT nama FROM stok_barang WHERE nama='$_POST[nama]'"));
-	
-  if($checkname > 0) {
-    echo "<script>window.alert('Nama Barang Yang Anda Masukkan Sudah Ada')
-    window.location='stok.php'</script>";
+<?php
+session_start();
+if ($_SESSION['user'] == "") {
+  header("location:../index.php?pesan=belum_login");
 }
-else{
-  $query = mysqli_query($conn,"insert into stok_barang values('','$nama','$jenis','$stock','$harga','$pic')");
-  if ($query){
+
+include '../dbconnect.php';
+$nama = $_POST['nama'];
+$jenis = $_POST['jenis'];
+$stock = $_POST['stock'];
+$harga = $_POST['harga'];
+$pic = $_SESSION['user'];
+
+$checkname = mysqli_num_rows(mysqli_query($conn, "SELECT nama FROM stok_barang WHERE nama='$_POST[nama]'"));
+
+if ($checkname > 0) {
+  echo "<script>window.alert('Nama Barang Yang Anda Masukkan Sudah Ada')
+    window.location='stok.php'</script>";
+} else {
+  $query = mysqli_query($conn, "insert into stok_barang values('','$nama','$jenis','$stock','$harga','$pic')");
+  if ($query) {
     header('location:stok.php');
-  } 
-  else{                 
+  } else {
     echo 'Gagal';
     header('location:stok.php');
   }
 }
 ?>
- 
-  <html>
-  <head>
-    <title>Tambah Barang</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  </head>
+
+<html>
+
+<head>
+  <title>Tambah Barang</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>

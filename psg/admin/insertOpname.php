@@ -5,7 +5,7 @@ $notes = $_POST['notes'];
 $items = $_POST['items'];
 $jumlah = $_POST['jumlah'];
 
-$query = mysqli_query($conn, "INSERT INTO stock_opname (tanggal,notes) VALUES('$tanggal','$notes')");
+$query = mysqli_query($conn, "INSERT INTO stock_opname (tanggal,notes,status) VALUES('$tanggal','$notes','pending')");
 $id = mysqli_insert_id($conn);
 for ($i = 0; $i < count($items); $i++) {
     $sql = "SELECT * FROM stok_barang WHERE idx = $items[$i]";

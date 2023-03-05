@@ -33,6 +33,9 @@ if (isset($_POST['hapus'])) {
     //cek apakah berhasil
     header('location:index.php');
 };
+
+$sqlBarang = "SELECT * FROM stok_barang";
+$rowBarang = mysqli_fetch_array(mysqli_query($conn, $sqlBarang));
 ?>
 
 <head>
@@ -97,8 +100,8 @@ if (isset($_POST['hapus'])) {
                 <div class="menu-inner">
                     <nav>
                         <ul class="metismenu" id="menu">
-                            <li class="active">
-                                <a href="index.php"><span><b>Data Admin</b></span></a>
+                            <li>
+                                <a href="index.php"><span>Data Admin</span></a>
                             </li>
                             <li>
                                 <a href="stok.php"><span>Stok Barang</span></a>
@@ -115,8 +118,8 @@ if (isset($_POST['hapus'])) {
                             <li>
                                 <a href="customer.php"><span>Master Customer</span></a>
                             </li>
-                            <li>
-                                <a href="stock_opname.php"><span>Stock Opname</span></a>
+                            <li class="active">
+                                <a href="stock_opname.php"><span><b>Stock Opname</b></span></a>
                             </li>
                             <li>
                                 <a href="logout.php"><span>Keluar</span></a>
@@ -157,41 +160,48 @@ if (isset($_POST['hapus'])) {
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-sm-flex justify-content-between align-items-center">
-                                    <h2>Data Admin</h2>
+                                    <h2>Stock Opname</h2>
+                                    <button style="margin-bottom:20px" class="btn btn-success col-md-2" onclick="tambahModal()"><span class="glyphicon glyphicon-plus"></span>Tambah Data</button>
                                 </div>
                                 <div class="datatable-dark table-responsive">
                                     <table id="dataTable3" class="display" style="width:100%">
                                         <thead class="thead-dark">
                                             <tr>
                                                 <th>No</th>
-                                                <th>Nama</th>
-                                                <th>Email</th>
-                                                <th>No. HP</th>
-                                                <th>Jabatan</th>
+                                                <th>Tanggal</th>
+                                                <th>Notes</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $brgs = mysqli_query($conn, "SELECT * from admin");
+                                            $brgs = mysqli_query($conn, "SELECT * from stock_opname");
                                             $no = 1;
                                             while ($p = mysqli_fetch_array($brgs)) {
                                                 $id = $p['id'];
                                             ?>
-
                                                 <tr>
-                                                    <td><?php echo $no++ ?></td>
-                                                    <td><?php echo $p['nickname'] ?></td>
-                                                    <td><?php echo $p['email'] ?></td>
-                                                    <td><?php echo $p['nohp'] ?></td>
-                                                    <td><?php echo $p['jabatan'] ?></td>
-
+                                                    <td><?= $no ?></td>
+                                                    <td><?= date('d-m-Y', strtotime($p['tanggal'])) ?></td>
+                                                    <td><?= $p['notes'] ?></td>
+                                                    <?php
+                                                    $bg = 'bg-warning';
+                                                    if ($p['status'] == 'reject') {
+                                                        $bg = 'bg-danger';
+                                                    } else if ($p['status'] == 'accept') {
+                                                        $bg = 'bg-success';
+                                                    } ?>
+                                                    <td><span class="badge <?= $bg ?>"><?= strtoupper($p['status']) ?></span></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-primary" onclick="lihatModal(<?= $id ?>)">Lihat</button>
+                                                        <button type="button" class="btn btn-sm btn-primary" onclick="editModal(<?= $id ?>)">Edit</button>
+                                                        <button type="button" class="btn btn-sm btn-primary" onclick="hapusModal(<?= $id ?>)">Hapus</button>
+                                                    </td>
                                                 </tr>
-                                            <?php
-                                            }
-                                            ?>
-
-
+                                            <?php } ?>
                                         </tbody>
+
                                     </table>
                                 </div>
                             </div>
@@ -205,9 +215,20 @@ if (isset($_POST['hapus'])) {
     <!-- main content area end -->
     </div>
     <!-- page container area end -->
-
-
-
+    <!-- modal input -->
+    <div id="myModal" class="modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modalTitle"></h4>
+                </div>
+                <div class="modal-body" id="modalBody">
+                </div>
+                <div class="modal-footer" id="modalFooter">
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- jquery latest version -->
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <!-- bootstrap 4 js -->
@@ -243,7 +264,190 @@ if (isset($_POST['hapus'])) {
     <!-- others plugins -->
     <script src="assets/js/plugins.js"></script>
     <script src="assets/js/scripts.js"></script>
+    <script>
+        function formatDateIndonesia(orginaldate) {
+            var date = new Date(orginaldate);
+            var tahun = date.getFullYear();
+            var bulan = date.getMonth();
+            var tanggal = date.getDate();
+            var hari = date.getDay();
+            switch (hari) {
+                case 0:
+                    hari = "Minggu";
+                    break;
+                case 1:
+                    hari = "Senin";
+                    break;
+                case 2:
+                    hari = "Selasa";
+                    break;
+                case 3:
+                    hari = "Rabu";
+                    break;
+                case 4:
+                    hari = "Kamis";
+                    break;
+                case 5:
+                    hari = "Jum'at";
+                    break;
+                case 6:
+                    hari = "Sabtu";
+                    break;
+            }
+            switch (bulan) {
+                case 0:
+                    bulan = "Januari";
+                    break;
+                case 1:
+                    bulan = "Februari";
+                    break;
+                case 2:
+                    bulan = "Maret";
+                    break;
+                case 3:
+                    bulan = "April";
+                    break;
+                case 4:
+                    bulan = "Mei";
+                    break;
+                case 5:
+                    bulan = "Juni";
+                    break;
+                case 6:
+                    bulan = "Juli";
+                    break;
+                case 7:
+                    bulan = "Agustus";
+                    break;
+                case 8:
+                    bulan = "September";
+                    break;
+                case 9:
+                    bulan = "Oktober";
+                    break;
+                case 10:
+                    bulan = "November";
+                    break;
+                case 11:
+                    bulan = "Desember";
+                    break;
+            }
+            var tampilTanggal = hari + ", " + tanggal + " " + bulan + " " + tahun;
+            return tampilTanggal;
+        }
 
+        function formatDate(orginaldate) {
+            var date = new Date(orginaldate);
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            if (day < 10) {
+                day = "0" + day;
+            }
+            if (month < 10) {
+                month = "0" + month;
+            }
+            var date = year + "-" + month + "-" + day;
+            return date;
+        }
+        $(document).ready(function() {
+            getData()
+        })
+
+        var data_so = ''
+
+        function getData() {
+            $.ajax({
+                url: 'showStockOpname.php',
+                type: 'GET',
+                beforeSend: function() {},
+                success: function(response) {
+                    data_so = JSON.parse(response)
+                    console.log(data_so)
+                }
+            })
+        }
+
+        function lihatModal(id) {
+            var data = data_so.find((value, key) => {
+                if (value.id == id) return true
+            })
+            $('#myModal').modal('show')
+            $('#modalTitle').html('Detail Stock Opname')
+            var html_body = ''
+            html_body += '<div class="container">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-2">Tanggal</div>'
+            html_body += '<div class="col-auto">:</div>'
+            html_body += '<div class="col">' + formatDateIndonesia(data.tanggal) + '</div>'
+            html_body += '</div>'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-2">Notes</div>'
+            html_body += '<div class="col-auto">:</div>'
+            html_body += '<div class="col">' + data.notes + '</div>'
+            html_body += '</div>'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-12 pt-3">'
+
+            html_body += '<table class="table table-bordered table-hover">'
+            html_body += '<thead>'
+            html_body += '<tr>'
+            html_body += '<th>Nama Barang</th>'
+            html_body += '<th>Jumlah SO</th>'
+            html_body += '<th>Jumlah Stok Sistem</th>'
+            html_body += '<th>Status</th>'
+            html_body += '</tr>'
+            html_body += '</thead>'
+            html_body += '<tbody>'
+            $.each(data.detail, function(key, value) {
+                html_body += '<tr>'
+                html_body += '<td>' + value.nama_barang + '</td>'
+                html_body += '<td>' + value.jumlah_stok_so + '</td>'
+                html_body += '<td>' + value.jumlah_stok_sistem + '</td>'
+                html_body += '<td>' + value.status + '</td>'
+                html_body += '</tr>'
+            })
+            html_body += '</tbody>'
+            html_body += '</table>'
+
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            $('#modalBody').html(html_body)
+
+            var html_footer = ''
+            html_footer += '<button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>'
+            $('#modalFooter').html(html_footer)
+        }
+        var item = 0
+
+        function simpanHapus(id) {
+            var data = {
+                id: id,
+            }
+            // test
+            $.ajax({
+                url: 'hapusOpname.php',
+                type: 'POST',
+                data: data,
+                beforeSend: function() {},
+                success: function(response) {
+                    if (JSON.parse(response).status == 'success') {
+                        alert('Berhasil Hapus')
+                        refresh()
+                    } else {
+                        alert('Gagal Hapus')
+                        refresh()
+                    }
+
+                }
+            })
+        }
+
+        function refresh() {
+            location.reload();
+        }
+    </script>
 
 </body>
 
