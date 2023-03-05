@@ -161,7 +161,7 @@ $rowBarang = mysqli_fetch_array(mysqli_query($conn, $sqlBarang));
                             <div class="card-body">
                                 <div class="d-sm-flex justify-content-between align-items-center">
                                     <h2>Stock Opname</h2>
-                                    <button style="margin-bottom:20px" class="btn btn-success col-md-2" onclick="tambahModal()"><span class="glyphicon glyphicon-plus"></span>Tambah Data</button>
+                                    <!-- <button style="margin-bottom:20px" class="btn btn-success col-md-2" onclick="tambahModal()"><span class="glyphicon glyphicon-plus"></span>Tambah Data</button> -->
                                 </div>
                                 <div class="datatable-dark table-responsive">
                                     <table id="dataTable3" class="display" style="width:100%">
@@ -188,15 +188,18 @@ $rowBarang = mysqli_fetch_array(mysqli_query($conn, $sqlBarang));
                                                     <?php
                                                     $bg = 'bg-warning';
                                                     if ($p['status'] == 'reject') {
-                                                        $bg = 'bg-danger';
+                                                        $bg = 'bg-danger text-white';
                                                     } else if ($p['status'] == 'accept') {
-                                                        $bg = 'bg-success';
+                                                        $bg = 'bg-success text-white';
                                                     } ?>
                                                     <td><span class="badge <?= $bg ?>"><?= strtoupper($p['status']) ?></span></td>
                                                     <td>
-                                                        <button type="button" class="btn btn-sm btn-primary" onclick="lihatModal(<?= $id ?>)">Lihat</button>
-                                                        <button type="button" class="btn btn-sm btn-primary" onclick="editModal(<?= $id ?>)">Edit</button>
-                                                        <button type="button" class="btn btn-sm btn-primary" onclick="hapusModal(<?= $id ?>)">Hapus</button>
+                                                        <?php if ($p['status'] == 'pending') { ?>
+                                                            <button type="button" class="btn btn-sm btn-warning" onclick="approvalModal(<?= $id ?>)">Approval</button>
+                                                        <?php } else { ?>
+                                                            <button type="button" class="btn btn-sm btn-primary" onclick="lihatModal(<?= $id ?>)">Lihat</button>
+
+                                                        <?php } ?>
                                                     </td>
                                                 </tr>
                                             <?php } ?>
@@ -419,24 +422,134 @@ $rowBarang = mysqli_fetch_array(mysqli_query($conn, $sqlBarang));
             html_footer += '<button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>'
             $('#modalFooter').html(html_footer)
         }
+
+        function approvalModal(id) {
+            var data = data_so.find((value, key) => {
+                if (value.id == id) return true
+            })
+            $('#myModal').modal('show')
+            $('#modalTitle').html('Approval Stock Opname')
+            var html_body = ''
+            html_body += '<div class="container">'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-2">Tanggal</div>'
+            html_body += '<div class="col-auto">:</div>'
+            html_body += '<div class="col">' + formatDateIndonesia(data.tanggal) + '</div>'
+            html_body += '</div>'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-2">Notes</div>'
+            html_body += '<div class="col-auto">:</div>'
+            html_body += '<div class="col">' + data.notes + '</div>'
+            html_body += '</div>'
+            html_body += '<div class="row">'
+            html_body += '<div class="col-12 pt-3">'
+
+            html_body += '<table class="table table-bordered table-hover">'
+            html_body += '<thead>'
+            html_body += '<tr>'
+            html_body += '<th>Nama Barang</th>'
+            html_body += '<th>Jumlah SO</th>'
+            html_body += '<th>Jumlah Stok Sistem</th>'
+            html_body += '<th>Status</th>'
+            html_body += '</tr>'
+            html_body += '</thead>'
+            html_body += '<tbody>'
+            $.each(data.detail, function(key, value) {
+                html_body += '<tr>'
+                html_body += '<td>' + value.nama_barang + '</td>'
+                html_body += '<td>' + value.jumlah_stok_so + '</td>'
+                html_body += '<td>' + value.jumlah_stok_sistem + '</td>'
+                html_body += '<td>' + value.status + '</td>'
+                html_body += '</tr>'
+            })
+            html_body += '</tbody>'
+            html_body += '</table>'
+
+            html_body += '</div>'
+            html_body += '<div class="col-12">'
+            html_body += '<div class="form-check">'
+            html_body += '<input class="form-check-input" type="checkbox" value="on" id="checkApproval">'
+            html_body += '<label class="form-check-label" for="checkApproval">Saya dengan Bijaksana dan Tanpa Paksaan Melakukan Persetujuan dari Stock Opname pada tanggal ' + formatDateIndonesia(data.tanggal) + '. Dengan disetujuinya Stock Opname ini, maka Stok akan berubah sesuai dengan Jumlah SO diatas.</label>'
+            html_body += '</div>'
+            html_body += '<div class="row pt-3" id="formApproval">'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            $('#modalBody').html(html_body)
+
+            var html_footer = ''
+            html_footer += '<button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>'
+            html_footer += '<button class="btn btn-danger" disabled id="btnApprove" onclick="simpan(' + data.id + ')">Kirim Approval</button>'
+            $('#modalFooter').html(html_footer)
+        }
+        $(document).on('click', '#checkApproval', function(e) {
+            var value = $(this).is(':checked');
+            if (value == true) {
+                formAccReject()
+            } else {
+                $('#formApproval').empty()
+                $('#btnApprove').attr('disabled', true)
+            }
+        })
+
+        function formAccReject() {
+            var html_body = ""
+            html_body += '<div class="col-12 col-md-6 mb-2">'
+            html_body += '<div class="card btn-approval" id="btn_reject" data-status="0" style="border: 1px solid #363636;">'
+            html_body += '<div class="card-body text-center">'
+            html_body += '<span><i class="fa fa-times text-danger" id="icon_reject"></i> Reject</span>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '<div class="col-12 col-md-6">'
+            html_body += '<div class="card btn-approval" id="btn_accept" data-status="1" style="border: 1px solid #363636;">'
+            html_body += '<div class="card-body text-center">'
+            html_body += '<span><i class="fa fa-check text-success" id="icon_accept"></i> Accept</span>'
+            html_body += '</div>'
+            html_body += '</div>'
+            html_body += '</div>'
+            $('#formApproval').html(html_body)
+            return true
+        }
+        var approval_status = 0
+        $(document).on('click', '.btn-approval', function(e) {
+            $('#btnApprove').removeAttr('disabled', true)
+            var status = $(this).data('status')
+            approval_status = status
+            if (status == 1) {
+                $('#btn_accept').addClass('text-white bg-success')
+                $('#btn_reject').removeClass('text-white bg-danger')
+                $('#icon_accept').addClass('text-white').removeClass('text-success')
+                $('#icon_reject').removeClass('text-white').addClass('text-danger')
+                $('#textareaReject').addClass('d-none')
+            } else {
+                $('#btn_accept').removeClass('text-white bg-success')
+                $('#btn_reject').addClass('text-white bg-danger')
+                $('#icon_accept').removeClass('text-white').addClass('text-success')
+                $('#icon_reject').addClass('text-white').removeClass('text-danger')
+                $('#textareaReject').removeClass('d-none')
+            }
+        })
         var item = 0
 
-        function simpanHapus(id) {
+        function simpan(id) {
             var data = {
                 id: id,
+                status: approval_status,
             }
             // test
             $.ajax({
-                url: 'hapusOpname.php',
+                url: 'approvalOpname.php',
                 type: 'POST',
                 data: data,
                 beforeSend: function() {},
                 success: function(response) {
                     if (JSON.parse(response).status == 'success') {
-                        alert('Berhasil Hapus')
+                        alert('Berhasil Melakukan Approval')
                         refresh()
                     } else {
-                        alert('Gagal Hapus')
+                        alert('Gagal Melakukan Approval')
                         refresh()
                     }
 
