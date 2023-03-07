@@ -33,6 +33,9 @@ if (isset($_POST['hapus'])) {
     //cek apakah berhasil
     header('location:index.php');
 };
+
+$sqlBarang = "SELECT * FROM stok_barang";
+$rowBarang = mysqli_fetch_array(mysqli_query($conn, $sqlBarang));
 ?>
 
 <head>
@@ -97,8 +100,8 @@ if (isset($_POST['hapus'])) {
                 <div class="menu-inner">
                     <nav>
                         <ul class="metismenu" id="menu">
-                            <li class="active">
-                                <a href="index.php"><span><b>Data Admin</b></span></a>
+                            <li>
+                                <a href="index.php"><span>Data Admin</span></a>
                             </li>
                             <li>
                                 <a href="stok.php"><span>Stok Barang</span></a>
@@ -118,8 +121,8 @@ if (isset($_POST['hapus'])) {
                             <li>
                                 <a href="stock_opname.php"><span>Stock Opname</span></a>
                             </li>
-                            <li>
-                                <a href="laporan_so.php"><span>Laporan Stock Opname</span></a>
+                            <li class="active">
+                                <a href="laporan_so.php"><span><b>Laporan Stock Opname</b></span></a>
                             </li>
                             <li>
                                 <a href="logout.php"><span>Keluar</span></a>
@@ -160,40 +163,40 @@ if (isset($_POST['hapus'])) {
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-sm-flex justify-content-between align-items-center">
-                                    <h2>Data Admin</h2>
+                                    <h2>Laporan Stock Opname</h2>
+                                    <!-- <button style="margin-bottom:20px" class="btn btn-success col-md-2" onclick="tambahModal()"><span class="glyphicon glyphicon-plus"></span>Tambah Data</button> -->
+                                </div>
+                                <div class="row mt-2 mb-2">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label>Start Date</label>
+                                            <input type="date" class="form-control" id="startDate" value="<?= date('Y-m-d') ?>" required>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label>End Date</label>
+                                            <input type="date" class="form-control" id="endDate" value="<?= date('Y-m-d') ?>" required>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <label>.</label><br>
+                                        <button type="button" class="btn btn-primary" id="search" onclick="search()">Cari</button>
+                                    </div>
                                 </div>
                                 <div class="datatable-dark table-responsive">
                                     <table id="dataTable3" class="display" style="width:100%">
                                         <thead class="thead-dark">
                                             <tr>
                                                 <th>No</th>
+                                                <th>Tanggal</th>
                                                 <th>Nama</th>
-                                                <th>Email</th>
-                                                <th>No. HP</th>
-                                                <th>Jabatan</th>
+                                                <th>Jumlah SO</th>
+                                                <th>Jumlah Stok Sistem</th>
+                                                <th>Status SO</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <?php
-                                            $brgs = mysqli_query($conn, "SELECT * from admin");
-                                            $no = 1;
-                                            while ($p = mysqli_fetch_array($brgs)) {
-                                                $id = $p['id'];
-                                            ?>
-
-                                                <tr>
-                                                    <td><?php echo $no++ ?></td>
-                                                    <td><?php echo $p['nickname'] ?></td>
-                                                    <td><?php echo $p['email'] ?></td>
-                                                    <td><?php echo $p['nohp'] ?></td>
-                                                    <td><?php echo $p['jabatan'] ?></td>
-
-                                                </tr>
-                                            <?php
-                                            }
-                                            ?>
-
-
+                                        <tbody id="dataSO">
                                         </tbody>
                                     </table>
                                 </div>
@@ -208,9 +211,20 @@ if (isset($_POST['hapus'])) {
     <!-- main content area end -->
     </div>
     <!-- page container area end -->
-
-
-
+    <!-- modal input -->
+    <div id="myModal" class="modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modalTitle"></h4>
+                </div>
+                <div class="modal-body" id="modalBody">
+                </div>
+                <div class="modal-footer" id="modalFooter">
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- jquery latest version -->
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <!-- bootstrap 4 js -->
@@ -246,7 +260,140 @@ if (isset($_POST['hapus'])) {
     <!-- others plugins -->
     <script src="assets/js/plugins.js"></script>
     <script src="assets/js/scripts.js"></script>
+    <script>
+        function formatDateIndonesia(orginaldate) {
+            var date = new Date(orginaldate);
+            var tahun = date.getFullYear();
+            var bulan = date.getMonth();
+            var tanggal = date.getDate();
+            var hari = date.getDay();
+            switch (hari) {
+                case 0:
+                    hari = "Minggu";
+                    break;
+                case 1:
+                    hari = "Senin";
+                    break;
+                case 2:
+                    hari = "Selasa";
+                    break;
+                case 3:
+                    hari = "Rabu";
+                    break;
+                case 4:
+                    hari = "Kamis";
+                    break;
+                case 5:
+                    hari = "Jum'at";
+                    break;
+                case 6:
+                    hari = "Sabtu";
+                    break;
+            }
+            switch (bulan) {
+                case 0:
+                    bulan = "Januari";
+                    break;
+                case 1:
+                    bulan = "Februari";
+                    break;
+                case 2:
+                    bulan = "Maret";
+                    break;
+                case 3:
+                    bulan = "April";
+                    break;
+                case 4:
+                    bulan = "Mei";
+                    break;
+                case 5:
+                    bulan = "Juni";
+                    break;
+                case 6:
+                    bulan = "Juli";
+                    break;
+                case 7:
+                    bulan = "Agustus";
+                    break;
+                case 8:
+                    bulan = "September";
+                    break;
+                case 9:
+                    bulan = "Oktober";
+                    break;
+                case 10:
+                    bulan = "November";
+                    break;
+                case 11:
+                    bulan = "Desember";
+                    break;
+            }
+            var tampilTanggal = hari + ", " + tanggal + " " + bulan + " " + tahun;
+            return tampilTanggal;
+        }
 
+        function formatDate(orginaldate) {
+            var date = new Date(orginaldate);
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            if (day < 10) {
+                day = "0" + day;
+            }
+            if (month < 10) {
+                month = "0" + month;
+            }
+            var date = year + "-" + month + "-" + day;
+            return date;
+        }
+        $(document).ready(function() {
+            search()
+        })
+
+        function search() {
+            var end = $('#endDate').val()
+            var start = $('#startDate').val()
+            simpan(end, start)
+        }
+
+        function simpan(end, start) {
+            var data = {
+                tanggal_awal: start,
+                tanggal_akhir: end,
+            }
+            // test
+            $.ajax({
+                url: 'laporanStockOpname.php',
+                type: 'POST',
+                data: data,
+                beforeSend: function() {},
+                success: function(response) {
+                    var html = ''
+                    $.each(JSON.parse(response), function(key, value) {
+                        html += '<tr>'
+                        html += '<td>' + (parseInt(key) + 1) + '</td>'
+                        html += '<td>' + formatDateIndonesia(value.tanggal) + '</td>'
+                        html += '<td>' + value.nama + '</td>'
+                        html += '<td>' + value.jumlah_stok_so + '</td>'
+                        var selisih = ''
+                        if (value.jumlah_stok_so != value.jumlah_stok_sistem) {
+                            selisih = '<span class="text-warning"> (' + (parseFloat(value.jumlah_stok_so) - parseFloat(value.jumlah_stok_sistem)) + ') </span>'
+                        }
+                        html += '<td>' + value.jumlah_stok_sistem + '' + selisih + '</td>'
+                        var bg = 'bg-light'
+                        if (value.status == 'accept') {
+                            bg = 'bg-success text-white'
+                        } else if (value.status == 'rejecr') {
+                            bg = 'bg-danger text-white'
+                        }
+                        html += '<td><span class="badge ' + bg + '">' + value.status + '</span></td>'
+                        html += '</tr>'
+                    })
+                    $('#dataSO').html(html)
+                }
+            })
+        }
+    </script>
 
 </body>
 

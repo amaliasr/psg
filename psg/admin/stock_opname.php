@@ -122,6 +122,9 @@ $rowBarang = mysqli_fetch_array(mysqli_query($conn, $sqlBarang));
                                 <a href="stock_opname.php"><span><b>Stock Opname</b></span></a>
                             </li>
                             <li>
+                                <a href="laporan_so.php"><span>Laporan Stock Opname</span></a>
+                            </li>
+                            <li>
                                 <a href="logout.php"><span>Keluar</span></a>
                             </li>
                         </ul>
@@ -186,8 +189,10 @@ $rowBarang = mysqli_fetch_array(mysqli_query($conn, $sqlBarang));
                                                     <td><?= $p['notes'] ?></td>
                                                     <td>
                                                         <button type="button" class="btn btn-sm btn-primary" onclick="lihatModal(<?= $id ?>)">Lihat</button>
-                                                        <button type="button" class="btn btn-sm btn-primary" onclick="editModal(<?= $id ?>)">Edit</button>
-                                                        <button type="button" class="btn btn-sm btn-primary" onclick="hapusModal(<?= $id ?>)">Hapus</button>
+                                                        <?php if ($p['status'] == 'pending') { ?>
+                                                            <button type="button" class="btn btn-sm btn-primary" onclick="editModal(<?= $id ?>)">Edit</button>
+                                                            <button type="button" class="btn btn-sm btn-primary" onclick="hapusModal(<?= $id ?>)">Hapus</button>
+                                                        <?php } ?>
                                                     </td>
                                                 </tr>
                                             <?php } ?>

@@ -122,6 +122,9 @@ $rowBarang = mysqli_fetch_array(mysqli_query($conn, $sqlBarang));
                                 <a href="stock_opname.php"><span><b>Stock Opname</b></span></a>
                             </li>
                             <li>
+                                <a href="laporan_so.php"><span>Laporan Stock Opname</span></a>
+                            </li>
+                            <li>
                                 <a href="logout.php"><span>Keluar</span></a>
                             </li>
                         </ul>

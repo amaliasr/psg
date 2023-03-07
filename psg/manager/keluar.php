@@ -188,6 +188,9 @@ if (isset($_POST['hapus'])) {
                                 <a href="stock_opname.php"><span>Stock Opname</span></a>
                             </li>
                             <li>
+                                <a href="laporan_so.php"><span>Laporan Stock Opname</span></a>
+                            </li>
+                            <li>
                                 <a href="logout.php"><span>Keluar</span></a>
                             </li>
                         </ul>
