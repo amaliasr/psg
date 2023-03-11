@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 27, 2023 at 08:42 PM
--- Server version: 10.4.21-MariaDB
--- PHP Version: 8.0.12
+-- Generation Time: Mar 11, 2023 at 06:11 PM
+-- Server version: 10.4.27-MariaDB
+-- PHP Version: 8.1.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -35,14 +35,15 @@ CREATE TABLE `admin` (
   `email` varchar(50) NOT NULL,
   `nohp` varchar(50) NOT NULL,
   `jabatan` varchar(50) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `admin`
 --
 
 INSERT INTO `admin` (`id`, `username`, `password`, `nickname`, `email`, `nohp`, `jabatan`) VALUES
-(1, 'vall', '202cb962ac59075b964b07152d234b70', 'Valleria', 'valleria@gmail.com', '081080801919', 'Admin');
+(1, 'vall', '202cb962ac59075b964b07152d234b70', 'Valleria', 'valleria@gmail.com', '081080801919', 'Admin'),
+(2, 'angel', 'ab1dbd386662b62477b62087a389256a', 'Angel', 'amaliayuya@gmail.com', '081944946015', 'Manager');
 
 -- --------------------------------------------------------
 
@@ -59,7 +60,7 @@ CREATE TABLE `barang_keluar` (
   `penerima` varchar(50) NOT NULL,
   `keterangan` varchar(50) NOT NULL,
   `pic` varchar(50) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -76,7 +77,7 @@ CREATE TABLE `barang_masuk` (
   `keterangan` varchar(50) NOT NULL,
   `supplier` varchar(50) NOT NULL,
   `pic` varchar(50) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
@@ -89,7 +90,58 @@ CREATE TABLE `customer` (
   `nama` varchar(50) NOT NULL,
   `nohp` varchar(50) NOT NULL,
   `alamat` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `detail_stock_opname`
+--
+
+CREATE TABLE `detail_stock_opname` (
+  `id` int(11) NOT NULL,
+  `id_so` int(11) NOT NULL,
+  `id_barang` int(11) NOT NULL,
+  `jumlah_stok_so` int(11) NOT NULL,
+  `jumlah_stok_sistem` int(11) NOT NULL,
+  `status` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `detail_stock_opname`
+--
+
+INSERT INTO `detail_stock_opname` (`id`, `id_so`, `id_barang`, `jumlah_stok_so`, `jumlah_stok_sistem`, `status`) VALUES
+(1, 3, 1, 1000, 1000, 'reject'),
+(2, 3, 2, 111, 122, 'reject'),
+(3, 4, 1, 100, 1000, 'pending'),
+(4, 4, 2, 11, 122, 'pending'),
+(5, 5, 1, 1000, 1000, 'accept'),
+(6, 5, 2, 111, 122, 'accept'),
+(7, 6, 1, 1000, 1000, 'pending'),
+(8, 6, 2, 111, 111, 'pending');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stock_opname`
+--
+
+CREATE TABLE `stock_opname` (
+  `id` int(11) NOT NULL,
+  `tanggal` datetime NOT NULL,
+  `notes` text NOT NULL,
+  `status` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `stock_opname`
+--
+
+INSERT INTO `stock_opname` (`id`, `tanggal`, `notes`, `status`) VALUES
+(3, '2023-03-04 00:00:00', 'test opname tanggal 5 Maret 2023', 'reject'),
+(5, '2023-03-05 00:00:00', 'coba SO tanggal 5', 'accept'),
+(6, '2023-03-06 00:00:00', 'SO TGL 6 MARET 2023', 'pending');
 
 -- --------------------------------------------------------
 
@@ -104,7 +156,15 @@ CREATE TABLE `stok_barang` (
   `stock` int(12) NOT NULL,
   `harga` int(20) NOT NULL,
   `pic` varchar(50) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `stok_barang`
+--
+
+INSERT INTO `stok_barang` (`idx`, `nama`, `jenis`, `stock`, `harga`, `pic`) VALUES
+(1, 'Serat Fiber', 'RM', 1000, 1200, 'Valleria'),
+(2, 'Tepung Terigu', 'RM', 111, 200, 'Valleria');
 
 -- --------------------------------------------------------
 
@@ -119,7 +179,7 @@ CREATE TABLE `supplier` (
   `alamat` varchar(100) NOT NULL,
   `email` varchar(50) NOT NULL,
   `nohp` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables
@@ -150,6 +210,18 @@ ALTER TABLE `customer`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `detail_stock_opname`
+--
+ALTER TABLE `detail_stock_opname`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `stock_opname`
+--
+ALTER TABLE `stock_opname`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `stok_barang`
 --
 ALTER TABLE `stok_barang`
@@ -169,7 +241,7 @@ ALTER TABLE `supplier`
 -- AUTO_INCREMENT for table `admin`
 --
 ALTER TABLE `admin`
-  MODIFY `id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `barang_keluar`
@@ -190,10 +262,22 @@ ALTER TABLE `customer`
   MODIFY `id` int(12) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `detail_stock_opname`
+--
+ALTER TABLE `detail_stock_opname`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `stock_opname`
+--
+ALTER TABLE `stock_opname`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT for table `stok_barang`
 --
 ALTER TABLE `stok_barang`
-  MODIFY `idx` int(12) NOT NULL AUTO_INCREMENT;
+  MODIFY `idx` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `supplier`
